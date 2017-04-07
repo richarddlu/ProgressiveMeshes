@@ -1,3 +1,4 @@
+#include <functional>
 
 struct EdgeCollapseTarget {
     EdgeIter ei;
@@ -30,7 +31,7 @@ struct VertexSplitTarget {
 class Simplification {
     Mesh *mesh;
 
-    priority_queue <EdgeCollapseTarget, deque<EdgeCollapseTarget>, greater<EdgeCollapseTarget>> heap;
+    priority_queue <EdgeCollapseTarget, deque<EdgeCollapseTarget>, std::greater<EdgeCollapseTarget>> heap;
     list<EdgeCollapseTarget> suspendedEdgeCollapseTarget;
 
     stack<VertexSplitTarget>  vertexSplitTarget;

@@ -2,7 +2,8 @@
 #include "mesh.h"
 #include "simplification.h"
 #include <windows.h> 
-
+#include <GL/glui.h>
+#include <fstream>
 
 Mesh mesh;
 Simplification simplification;
@@ -18,6 +19,9 @@ bool left_click = 0, right_click = 0;
 bool doEdgeCollapse = false, doVertexSplit = false, doLOD = false;
 int  step = 0;
 
+int   main_window;
+
+fstream* pFs;
 
 void mouse(int button, int state, int x, int y)
 {
@@ -124,6 +128,50 @@ void display()
     glutSwapBuffers();
 }
 
+void myGlutIdle( void )
+{
+  /* According to the GLUT specification, the current window is 
+     undefined during an idle callback.  So we need to explicitly change
+     it if necessary */
+  if ( glutGetWindow() != main_window ) 
+    glutSetWindow(main_window);  
+
+  glutPostRedisplay();
+}
+
+void increaseRes() {
+	{
+      step++; 
+      doLOD = true;
+    }
+
+	glutPostRedisplay();
+}
+
+void selectCat() {
+	if(step < 60) {
+		increaseRes();
+		string line = "cat " + to_string(step) + " " + to_string((int)(20*pow(1.1, step))) + "\n";
+		*pFs << line;
+	}
+}
+
+void selectDog() {
+	if(step < 60) {
+		increaseRes();
+		string line = "dog " + to_string(step) + " " + to_string((int)(20*pow(1.1, step))) + "\n";
+		*pFs << line;
+	}
+}
+
+void selectHorse() {
+	if(step < 60) {
+		increaseRes();
+		string line = "horse " + to_string(step) + " " + to_string((int)(20*pow(1.1, step))) + "\n";
+		*pFs << line;
+	}
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -132,18 +180,46 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
+	string mesh_name = argv[1];
+	string filename = mesh_name + ".txt";
+
+	fstream fs(filename, ios_base::out);
+	pFs = &fs;
+
+	if(!fs.is_open()){	// opening failed
+		cout<<"fail open failed."<<endl;
+		return 1;
+	}
+
     simplification.InitSimplification(&mesh);
+	step = 0; 
+    doLOD = true;
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
     glutInitWindowPosition(20, 20);
     glutInitWindowSize(window_width, window_height);
-    glutCreateWindow("Mesh Simplification");
+    main_window = glutCreateWindow("Mesh Simplification");
     glutDisplayFunc(display);
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
     glutKeyboardFunc(keyboard);
     GLInit();
+
+	/****************************************/
+    /*         Here's the GLUI code         */
+    /****************************************/
+  
+    GLUI *glui = GLUI_Master.create_glui( "GLUI" );
+	glui->add_button("Cat", -1, (GLUI_Update_CB)selectCat);
+	glui->add_button("Dog", -1, (GLUI_Update_CB)selectDog);
+	glui->add_button("Horse", -1, (GLUI_Update_CB)selectHorse);
+   
+    glui->set_main_gfx_window( main_window );
+
+    /* We register the idle callback with GLUI, *not* with GLUT */
+    GLUI_Master.set_glutIdleFunc( myGlutIdle );
+
     glutMainLoop();
 
     return 1;
