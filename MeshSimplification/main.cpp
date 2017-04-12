@@ -4,6 +4,7 @@
 #include <windows.h> 
 #include <GL/glui.h>
 #include <fstream>
+#include <tchar.h>
 
 Mesh mesh;
 Simplification simplification;
@@ -119,7 +120,12 @@ void display()
     }
 
     if(doLOD){
-        simplification.ControlLevelOfDetail(step);
+		if (simplification.ControlLevelOfDetail(step)) {
+			HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
+			::MessageBox(winHandle, _T("Maximum complexity has been reached, press OK to process another model."), _T("MeshSimplification"), MB_OK);
+
+			exit(0);
+		}
         doLOD = false;
     }
 
@@ -149,26 +155,41 @@ void increaseRes() {
 }
 
 void selectCat() {
-	if(step < 60) {
+	if(step < 50) {
 		increaseRes();
 		string line = "cat " + to_string(step) + " " + to_string((int)(20*pow(1.1, step))) + "\n";
 		*pFs << line;
+	} else {
+		HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
+		::MessageBox(winHandle, _T("Maximum number of step is 50, press OK to process another model."), _T("MeshSimplification"), MB_OK);
+
+		exit(0);
 	}
 }
 
 void selectDog() {
-	if(step < 60) {
+	if(step < 50) {
 		increaseRes();
 		string line = "dog " + to_string(step) + " " + to_string((int)(20*pow(1.1, step))) + "\n";
 		*pFs << line;
+	} else {
+		HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
+		::MessageBox(winHandle, _T("Maximum number of step is 50, press OK to process another model."), _T("MeshSimplification"), MB_OK);
+
+		exit(0);
 	}
 }
 
 void selectHorse() {
-	if(step < 60) {
+	if(step < 50) {
 		increaseRes();
 		string line = "horse " + to_string(step) + " " + to_string((int)(20*pow(1.1, step))) + "\n";
 		*pFs << line;
+	} else {
+		HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
+		::MessageBox(winHandle, _T("Maximum number of step is 50, press OK to process another model."), _T("MeshSimplification"), MB_OK);
+
+		exit(0);
 	}
 }
 

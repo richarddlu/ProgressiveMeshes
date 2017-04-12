@@ -595,10 +595,13 @@ void Simplification::VertexSplit()
 
 
 
-void Simplification::ControlLevelOfDetail(int step)
+bool Simplification::ControlLevelOfDetail(int step)
 {
     //int n_target_faces = mesh->n_faces*pow(0.95, step);
 	int n_target_faces = 20*pow(1.1, step);
+
+	if (n_target_faces > mesh->n_faces)
+		return true;
 
     cerr << "step " << step << " " << n_target_faces << " " << mesh->n_faces << endl;
 
@@ -608,5 +611,6 @@ void Simplification::ControlLevelOfDetail(int step)
 		while(n_target_faces > n_active_faces) VertexSplit();
     }
 
+	return false;
 }
 

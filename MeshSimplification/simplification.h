@@ -56,5 +56,5 @@ public:
     void InitSimplification(Mesh *mesh_in);
     bool EdgeCollapse();
     void VertexSplit();
-    void ControlLevelOfDetail(int step);
+    bool ControlLevelOfDetail(int step);
 };
