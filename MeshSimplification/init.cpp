@@ -13,9 +13,9 @@ void GLInit()
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     // "-near" and "-far" define clipping planes
-    glOrtho(-1.1, 1.1, -1.1, 1.1, -10000, 10000);
+    glOrtho(-1.1*1705.0f/1080.0f, 1.1*1705.0f/1080.0f, -1.1, 1.1, -10000, 10000);
 
-    //gluPerspective(45, 1.0, 1.0, 100);
+    //gluPerspective(45, 1705.0f/1080.0f, 1.0, 100);
 
 
     glMatrixMode(GL_MODELVIEW);

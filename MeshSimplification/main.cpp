@@ -21,6 +21,9 @@ bool doEdgeCollapse = false, doVertexSplit = false, doLOD = false;
 int  step = 0;
 
 int   main_window;
+GLUI *glui;
+
+bool showedPrompt = false;
 
 fstream* pFs;
 
@@ -95,6 +98,13 @@ void keyboard( unsigned char c, int x, int y )
     glutPostRedisplay();
 }
 
+void showNoMorePrompt() {
+	glui->add_separator();
+	glui->add_statictext( "Maximum complexity has been reached," );
+	glui->add_statictext( "press OK to process another model." );
+	glui->add_button("                    OK                    ", -1, (GLUI_Update_CB)exit);
+}
+
 
 void display()
 {
@@ -121,15 +131,19 @@ void display()
 
     if(doLOD){
 		if (simplification.ControlLevelOfDetail(step)) {
-			HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
+			/*HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
 			::MessageBox(winHandle, _T("Maximum complexity has been reached, press OK to process another model."), _T("MeshSimplification"), MB_OK);
 
-			exit(0);
+			exit(0);*/
+			if (!showedPrompt) {
+				showNoMorePrompt();
+				showedPrompt = true;
+			}
 		}
         doLOD = false;
     }
 
-    mesh.Display(toggle);
+	mesh.Display(toggle);
 
     glutSwapBuffers();
 }
@@ -154,16 +168,27 @@ void increaseRes() {
 	glutPostRedisplay();
 }
 
+void showMaxPrompt() {
+	glui->add_separator();
+	glui->add_statictext( "Maximum number of step is 50," );
+	glui->add_statictext( "press OK to process another model." );
+	glui->add_button("                    OK                    ", -1, (GLUI_Update_CB)exit);
+}
+
 void selectCat() {
 	if(step < 50) {
 		increaseRes();
 		string line = "cat " + to_string(step) + " " + to_string((int)(20*pow(1.1, step))) + "\n";
 		*pFs << line;
 	} else {
-		HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
+		/*HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
 		::MessageBox(winHandle, _T("Maximum number of step is 50, press OK to process another model."), _T("MeshSimplification"), MB_OK);
 
-		exit(0);
+		exit(0);*/
+		if (!showedPrompt) {
+			showMaxPrompt();
+			showedPrompt = true;
+		}
 	}
 }
 
@@ -173,10 +198,14 @@ void selectDog() {
 		string line = "dog " + to_string(step) + " " + to_string((int)(20*pow(1.1, step))) + "\n";
 		*pFs << line;
 	} else {
-		HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
+		/*HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
 		::MessageBox(winHandle, _T("Maximum number of step is 50, press OK to process another model."), _T("MeshSimplification"), MB_OK);
 
-		exit(0);
+		exit(0);*/
+		if (!showedPrompt) {
+			showMaxPrompt();
+			showedPrompt = true;
+		}
 	}
 }
 
@@ -186,11 +215,19 @@ void selectHorse() {
 		string line = "horse " + to_string(step) + " " + to_string((int)(20*pow(1.1, step))) + "\n";
 		*pFs << line;
 	} else {
-		HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
+		/*HWND winHandle = ::FindWindow(NULL, _T("MeshSimplification"));
 		::MessageBox(winHandle, _T("Maximum number of step is 50, press OK to process another model."), _T("MeshSimplification"), MB_OK);
 
-		exit(0);
+		exit(0);*/
+		if (!showedPrompt) {
+			showMaxPrompt();
+			showedPrompt = true;
+		}
 	}
+}
+
+void reshape(int width, int height) {
+	GLUI_Master.auto_set_viewport();
 }
 
 
@@ -221,7 +258,9 @@ int main(int argc, char *argv[])
     glutInitWindowPosition(20, 20);
     glutInitWindowSize(window_width, window_height);
     main_window = glutCreateWindow("Mesh Simplification");
+	glutFullScreen();
     glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
     glutMouseFunc(mouse);
     glutMotionFunc(motion);
     glutKeyboardFunc(keyboard);
@@ -231,10 +270,10 @@ int main(int argc, char *argv[])
     /*         Here's the GLUI code         */
     /****************************************/
   
-    GLUI *glui = GLUI_Master.create_glui( "GLUI" );
-	glui->add_button("Cat", -1, (GLUI_Update_CB)selectCat);
-	glui->add_button("Dog", -1, (GLUI_Update_CB)selectDog);
-	glui->add_button("Horse", -1, (GLUI_Update_CB)selectHorse);
+    glui = GLUI_Master.create_glui_subwindow( main_window, GLUI_SUBWINDOW_LEFT );
+	glui->add_button("                    Cat                    ", -1, (GLUI_Update_CB)selectCat);
+	glui->add_button("                    Dog                   ", -1, (GLUI_Update_CB)selectDog);
+	glui->add_button("                   Horse                  ", -1, (GLUI_Update_CB)selectHorse);
    
     glui->set_main_gfx_window( main_window );
 
